@@ -3,7 +3,34 @@ import requests
 from bs4 import BeautifulSoup
 import os
 import re
+import time  # 补充导入time模块（解决“未定义time”）
+import random  # 补充导入random模块（解决“未定义random”）
 
+
+# -------------------------- 补充缺失的辅助函数 --------------------------
+def clean_baike_url(url):
+    """清理百度百科链接，移除fromModule等反爬参数（解决“未定义clean_baike_url”）"""
+    if isinstance(url, str) and '?' in url:
+        url = url.split('?')[0]  # 只保留基础链接（如https://baike.baidu.com/item/阿朵）
+    return url
+
+
+def get_random_headers():
+    """生成随机请求头，模拟真实浏览器（解决“未定义get_random_headers”）"""
+    user_agents = [
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Firefox/129.0',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Edge/128.0.0.0 Safari/537.36'
+    ]
+    headers = {
+        'User-Agent': random.choice(user_agents),
+        'Referer': 'https://baike.baidu.com/',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8'
+    }
+    return headers
+
+
+# -------------------------- 原有函数修正 --------------------------
 def crawl_wiki_data():
     """爬取百度百科《乘风破浪的姐姐》嘉宾信息表格，适配页面结构变化"""
     headers = {
@@ -15,32 +42,22 @@ def crawl_wiki_data():
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'lxml')
-        tables = soup.find_all('table')  # 获取所有表格
-
-        # 1. 调整标题关键词：匹配可能的嘉宾列表标题（根据当前页面调整）
-        target_keywords = ['嘉宾', '成员', '参赛', '选手']  # 更通用的关键词
+        tables = soup.find_all('table')
+        target_keywords = ['参赛嘉宾']
 
         for table in tables:
-            # 2. 扩大前置标签范围：查找表格前的所有可能标题标签（h3、div、p等）
-            # 向前查找最近的标题标签（优先h3，其次div，最后p）
             title_tags = table.find_previous(['h3', 'div', 'p'])
             if not title_tags:
-                continue  # 无前置标题，跳过
-
-            # 3. 清洗标题文本（去空格、小写化），提高匹配容错性
+                continue
             title_text = title_tags.get_text(strip=True).lower()
-            # 判断标题是否包含目标关键词
             if any(keyword in title_text for keyword in target_keywords):
-                # 4. 额外验证表格是否包含嘉宾链接（避免误判）
-                if table.find('a', href=re.compile(r'/item/')):  # 包含指向个人百科的链接
+                if table.find('a', href=re.compile(r'/item/')):
                     print(f"找到目标表格，标题包含关键词：{title_text}")
                     return table
 
-        # 如果未通过标题匹配，尝试直接通过表格特征定位（备选方案）
         for table in tables:
-            # 特征：表格包含多个<a>标签，且href指向百度百科条目（/item/xxx）
             a_tags = table.find_all('a', href=re.compile(r'/item/'))
-            if len(a_tags) > 5:  # 假设嘉宾数量大于5
+            if len(a_tags) > 5:
                 print("通过表格特征找到疑似嘉宾表格")
                 return table
 
@@ -53,7 +70,7 @@ def crawl_wiki_data():
 
 
 def parse_wiki_data(table_html):
-    """解析嘉宾表格，提取姓名和百科链接，保存为stars.json（需先判断table_html非None）"""
+    """解析嘉宾表格，提取姓名和百科链接"""
     if table_html is None:
         print("无有效表格数据，无法解析")
         return
@@ -66,165 +83,193 @@ def parse_wiki_data(table_html):
         all_tds = tr.find_all('td')
         for td in all_tds:
             star = {}
-            # 3. 先判断是否找到a标签，避免None访问属性
             a_tag = td.find_next('a')
             if a_tag is not None:
-                star["name"] = a_tag.get_text(strip=True, separator='')  # 处理多换行/空格文本
+                star["name"] = a_tag.get_text(strip=True, separator='')
                 href = a_tag.get('href')
-                # 处理href可能为None的情况（部分a标签无href）
-                star['link'] = f'https://baike.baidu.com{href}' if href else ''
+                star['link'] = f'https://baike.baidu.com{href}' if (isinstance(href, str) and href) else ''
                 stars.append(star)
-                continue  # 找到a标签则跳过后续div判断
+                continue
             
-            # 若未找到直接a标签，尝试找div下的a标签
             div_tag = td.find_next('div')
             if div_tag is not None:
                 div_a_tag = div_tag.find('a')
                 if div_a_tag is not None:
                     star["name"] = div_a_tag.get_text(strip=True, separator='')
                     href = div_a_tag.get('href')
-                    star['link'] = f'https://baike.baidu.com{href}' if href else ''
+                    star['link'] = f'https://baike.baidu.com{href}' if (isinstance(href, str) and href) else ''
                     stars.append(star)
 
-    # 4. 优化JSON保存：直接dump列表，无需转字符串再解析（原写法不规范）
-    os.makedirs('work', exist_ok=True)  # 确保work目录存在
+    os.makedirs('work', exist_ok=True)
     with open('work/stars.json', 'w', encoding='UTF-8') as f:
-        json.dump(stars, f, ensure_ascii=False, indent=2)  # indent=2美化格式
+        json.dump(stars, f, ensure_ascii=False, indent=2)
     print(f"已解析{len(stars)}位嘉宾信息，保存至stars.json")
 
 
 def crawl_everyone_wiki_urls():
-    """爬取每位嘉宾的详细信息和图片，保存stars_info.json和图片"""
-    # 先判断stars.json是否存在
+    """爬取每位嘉宾的详细信息和图片（适配新结构+修复所有报错）"""
     star_json_path = 'work/stars.json'
     if not os.path.exists(star_json_path):
         print(f"{star_json_path}不存在，无法爬取嘉宾详情")
         return
+    pic_root_dir = 'work/star_pics'
+    os.makedirs(pic_root_dir, exist_ok=True)
 
+    # 读取并过滤嘉宾列表
     with open(star_json_path, 'r', encoding='UTF-8') as file:
         json_array = json.load(file)
-        # 过滤无效数据（无name或link的条目）
-        json_array = [star for star in json_array if star.get('name') and star.get('link')]
-
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36'
-    }
-    star_infos = []  # 统一收集所有嘉宾信息，避免循环中重复写文件
-
+    valid_stars = []
     for star in json_array:
+        name = star.get('name', '').strip()
+        link = star.get('link', '').strip()
+        if name and link:
+            clean_link = clean_baike_url(link)
+            valid_stars.append({'name': name, 'link': clean_link})
+    if not valid_stars:
+        print("无有效嘉宾列表数据，终止爬取")
+        return
+
+    # 初始化会话
+    session = requests.Session()
+    star_infos = []
+    request_interval = (1.5, 3)
+
+    for idx, star in enumerate(valid_stars, 1):
         name = star['name']
         link = star['link']
-        star_info = {'name': name, 'link': link}  # 保留原始链接，便于排查
-        print(f"\n开始爬取嘉宾：{name}")
+        star_info = {'name': name, 'link': link}
+        print(f"\n[{idx}/{len(valid_stars)}] 开始爬取嘉宾：{name}")
 
         try:
-            # 爬取嘉宾个人百科页面
-            response = requests.get(link, headers=headers, timeout=15)
+            # 随机间隔
+            time.sleep(random.uniform(*request_interval))
+            # 获取个人页面
+            headers = get_random_headers()
+            response = session.get(link, headers=headers, timeout=20)
             response.raise_for_status()
             bs = BeautifulSoup(response.text, 'lxml')
 
-            # 5. 先判断基本信息div是否存在，避免None访问find_all
-            base_info_div = bs.find('div', {'class': 'basic-info J-basic-info cmn-clearfix'})
-            if base_info_div is not None:
-                dls = base_info_div.find_all('dl')
-                for dl in dls:
-                    dts = dl.find_all('dt')
-                    for dt in dts:
-                        dt_text = dt.get_text(strip=True).replace('：', '')  # 处理“民族：”这类文本
-                        # 6. 先判断dd是否存在，避免None访问text
-                        dd_tag = dt.find_next('dd')
-                        if dd_tag is None:
-                            continue
-                        dd_text = dd_tag.get_text(strip=True, separator=' ')  # 合并多行为空格分隔
+            # 提取基本信息（新结构）
+            base_info_div = bs.find('div', class_='basicInfo_rZDFN J-basic-info')
+            if base_info_div:
+                item_wrappers = base_info_div.find_all('div', class_='itemWrapper_u4OET')
+                for wrapper in item_wrappers:
+                    dt_tag = wrapper.find('dt', class_='basicInfoItem_TsAAR itemName_tPWxP')
+                    dd_tag = wrapper.find('dd', class_='basicInfoItem_TsAAR itemValue_Xsiqq')
+                    if not (dt_tag and dd_tag):
+                        continue
 
-                        # 提取目标字段，处理特殊格式（如身高、出生日期）
-                        if dt_text == '民族':
-                            star_info['nation'] = dd_text
-                        elif dt_text == '星座':
-                            star_info['constellation'] = dd_text
-                        elif dt_text == '血型':
-                            star_info['blood_type'] = dd_text
-                        elif dt_text == '身高':
-                            # 提取cm前的数字（如“165cm”→“165”）
-                            height_match = re.search(r'(\d+(?:\.\d+)?)cm', dd_text)
-                            star_info['height'] = height_match.group(1) if height_match else dd_text
-                        elif dt_text == '体重':
-                            # 提取kg前的数字（如“48kg”→“48”）
-                            weight_match = re.search(r'(\d+(?:\.\d+)?)kg', dd_text)
-                            star_info['weight'] = weight_match.group(1) if weight_match else dd_text
-                        elif dt_text == '出生日期':
-                            # 提取年份（如“1985年10月15日”→“1985”）
-                            year_match = re.search(r'(\d{4})年', dd_text)
-                            star_info['birth_year'] = year_match.group(1) if year_match else dd_text
-            else:
-                print(f"未找到{name}的基本信息模块")
+                    # 清理字段名
+                    dt_text = dt_tag.get_text(strip=True)
+                    dt_text = dt_text.replace('\u00A0', '').replace('：', '')
+                    # 提取字段值
+                    value_span = dd_tag.find('span', class_='text_zBf3n')
+                    dd_text = value_span.get_text(strip=True, separator=' ') if value_span else dd_tag.get_text(strip=True, separator=' ')
 
-            # 爬取嘉宾图片列表
-            # 7. 判断图片列表链接是否存在
-            pic_list_a = bs.select_one('.summary-pic a')  # select_one返回单个元素（无则None）
-            if pic_list_a is not None:
-                pic_list_href = pic_list_a.get('href')
-                if pic_list_href:
-                    pic_list_url = f'https://baike.baidu.com{pic_list_href}'
-                    # 爬取图片列表页面
-                    pic_response = requests.get(pic_list_url, headers=headers, timeout=15)
-                    pic_response.raise_for_status()
-                    pic_bs = BeautifulSoup(pic_response.text, 'lxml')
-                    pic_imgs = pic_bs.select('.pic-list img')
-                    pic_urls = [img.get('src') for img in pic_imgs if img.get('src')]  # 过滤None链接
-                    print(f"找到{name}的{len(pic_urls)}张图片，开始下载")
-                    down_save_pic(name, pic_urls)
-                else:
-                    print(f"{name}的图片列表链接为空")
+                    # 赋值目标字段
+                    if dt_text == '民族':
+                        star_info['nation'] = dd_text
+                    elif dt_text == '星座':
+                        star_info['constellation'] = dd_text
+                    elif dt_text == '血型':
+                        star_info['blood_type'] = dd_text
+                    elif dt_text == '身高':
+                        height_match = re.search(r'(\d+(?:\.\d+)?)', dd_text)
+                        star_info['height'] = height_match.group(1) if height_match else dd_text
+                    elif dt_text == '体重':
+                        weight_match = re.search(r'(\d+(?:\.\d+)?)', dd_text)
+                        star_info['weight'] = weight_match.group(1) if weight_match else dd_text
+                    elif dt_text in ['出生日期', '出生年月']:
+                        year_match = re.search(r'(\d{4})年', dd_text)
+                        star_info['birth_year'] = year_match.group(1) if year_match else dd_text
+                print(f"✅ 成功提取{name}基本信息")
             else:
-                print(f"未找到{name}的图片列表入口")
+                print(f"⚠️ 未找到{name}的基本信息模块")
+
+            # 爬取图片（修复startswith报错：先判断src是字符串）
+            pic_urls = []
+            # 入口1：摘要区图片
+            summary_imgs = bs.select('.summary-pic img, .summary-content img')
+            for img in summary_imgs:
+                src = img.get('src')
+                # 先判断src是字符串且不为空，再调用startswith（解决“None无startswith”）
+                if isinstance(src, str) and src.startswith(('http://', 'https://')):
+                    pic_urls.append(src)
+            
+            # 入口2：更多图片链接（修复find参数报警：正则对象合法，无需修改）
+            more_pic_a = bs.find('a', text=re.compile(r'更多图片')) or bs.select_one('.summary-pic a[href*="/item/pic/"]')
+            if more_pic_a and more_pic_a.get('href'):
+                pic_list_url = f'https://baike.baidu.com{clean_baike_url(more_pic_a.get("href"))}'
+                time.sleep(random.uniform(0.5, 1))
+                pic_response = session.get(pic_list_url, headers=get_random_headers(), timeout=20)
+                pic_response.raise_for_status()
+                pic_bs = BeautifulSoup(pic_response.text, 'lxml')
+                # 入口2图片：同样判断src类型
+                list_imgs = pic_bs.select('.pic-list img, .album-list img')
+                for img in list_imgs:
+                    src = img.get('src')
+                    if isinstance(src, str) and src.startswith(('http://', 'https://')):
+                        pic_urls.append(src)
+
+            # 去重并下载（修复down_save_pic参数不匹配）
+            unique_pic_urls = list(set(pic_urls))
+            if unique_pic_urls:
+                print(f"✅ 找到{name}的{len(unique_pic_urls)}张图片，开始下载")
+                down_save_pic(name, unique_pic_urls, pic_root_dir)  # 传3个参数，对应函数定义
+            else:
+                print(f"⚠️ 未找到{name}的有效图片链接")
 
             star_infos.append(star_info)
+            print(f"✅ {name}爬取完成")
 
+        except requests.exceptions.HTTPError as e:
+            if '403' in str(e):
+                err_msg = f"❌ {name}爬取失败：403反爬拦截（建议添加Cookie）"
+            else:
+                err_msg = f"❌ {name}爬取失败：HTTP错误（{str(e)}）"
+            print(err_msg)
+            star_infos.append(star_info)
         except Exception as e:
-            print(f"爬取{name}信息失败：{str(e)}")
-            continue  # 某嘉宾失败不影响其他
+            print(f"❌ {name}爬取失败：其他错误（{str(e)}）")
+            star_infos.append(star_info)
+            continue
 
-    # 8. 统一保存所有嘉宾信息（避免循环中重复写文件）
+    # 保存信息
     with open('work/stars_info.json', 'w', encoding='UTF-8') as f:
         json.dump(star_infos, f, ensure_ascii=False, indent=2)
-    print(f"\n所有嘉宾信息爬取完成，共{len(star_infos)}位嘉宾，保存至stars_info.json")
+    print(f"\n=== 所有爬取任务结束 ===")
+    print(f"共处理{len(valid_stars)}位嘉宾，保存至work/stars_info.json")
+    print(f"图片保存目录：{os.path.abspath(pic_root_dir)}")
 
 
-def down_save_pic(name, pic_urls):
-    """下载图片到work/pics/name目录，处理目录创建和下载异常"""
-    # 9. 优化路径处理：使用os.path.join避免跨平台问题
-    pic_dir = os.path.join('work', 'pics', name)
-    os.makedirs(pic_dir, exist_ok=True)  # exist_ok=True避免目录已存在报错
+def down_save_pic(name, pic_urls, pic_root_dir):
+    """修改函数定义，接受3个参数（解决“应为2个位置参数”报错）"""
+    # 基于pic_root_dir生成图片保存路径
+    pic_dir = os.path.join(pic_root_dir, name)
+    os.makedirs(pic_dir, exist_ok=True)
 
-    for i, pic_url in enumerate(pic_urls, start=1):  # start=1使图片编号从1开始
+    for i, pic_url in enumerate(pic_urls, start=1):
         try:
-            # 下载图片（设置timeout，避免长时间阻塞）
-            pic_response = requests.get(pic_url, timeout=15, stream=True)  # stream=True适合大文件
+            pic_response = requests.get(pic_url, timeout=15, stream=True)
             pic_response.raise_for_status()
-            # 验证图片格式（简单判断Content-Type）
+            # 验证图片格式
             if 'image' not in pic_response.headers.get('Content-Type', ''):
                 print(f"跳过非图片链接：{pic_url}")
                 continue
             # 保存图片
             pic_path = os.path.join(pic_dir, f'{i}.jpg')
             with open(pic_path, 'wb') as f:
-                for chunk in pic_response.iter_content(chunk_size=1024):  # 分块写入（避免内存占用过大）
+                for chunk in pic_response.iter_content(chunk_size=1024):
                     if chunk:
                         f.write(chunk)
-            # print(f"成功下载{name}的第{i}张图片")
         except Exception as e:
             print(f"下载{name}的第{i}张图片失败：{str(e)}")
             continue
 
 
 if __name__ == '__main__':
-    # 确保work目录存在（避免首次运行时创建失败）
     os.makedirs('work', exist_ok=True)
-    # 1. 爬取嘉宾表格
     wiki_table = crawl_wiki_data()
-    # 2. 解析表格并保存姓名+链接
     parse_wiki_data(wiki_table)
-    # 3. 爬取每位嘉宾的详细信息和图片
     crawl_everyone_wiki_urls()
     print("\n=== 所有爬取任务结束 ===")
