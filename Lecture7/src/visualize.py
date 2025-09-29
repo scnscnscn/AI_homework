@@ -48,19 +48,28 @@ for star in stars_data:
 if not birth_years:
     print("未找到有效出生年份数据，无法绘制年龄分布图")
 else:
-    birth_year_counts = pd.Series(birth_years).value_counts().sort_index()  # 用pandas简化统计
-    plt.figure(figsize=(15, 8))
+    birth_year_counts = pd.Series(birth_years).value_counts().sort_index()
+
+    plt.figure(figsize=(20, 8))
     plt.bar(
         x=birth_year_counts.index,
         height=birth_year_counts.to_numpy(),
         color='#9999ff',
         edgecolor='white'
     )
-    plt.xticks(birth_year_counts.index, rotation=45, fontsize=12)
+
+    plt.xticks(
+        birth_year_counts.index, 
+        rotation=60,  
+        fontsize=10, 
+        ha='right',  
+        rotation_mode='anchor'  
+    )
     plt.yticks(fontsize=12)
-    plt.title('《乘风破浪的姐姐》参赛嘉宾出生年份分布', fontsize=16)
-    plt.xlabel('出生年份', fontsize=14)
-    plt.ylabel('人数', fontsize=14)
+    plt.title('《乘风破浪的姐姐》参赛嘉宾出生年份分布', fontsize=16, pad=20)
+    plt.xlabel('出生年份', fontsize=14, labelpad=15)  
+    plt.ylabel('人数', fontsize=14, labelpad=15)
+    plt.subplots_adjust(left=0.05, right=0.98, top=0.9, bottom=0.2)
     plt.tight_layout()
     plt.savefig(f'{save_dir}/bar_birth_year.jpg', dpi=300)
     plt.show()
@@ -84,21 +93,27 @@ else:
     bins = [0, 45, 50, 55, float('inf')]
     labels = ['≤45kg', '45~50kg', '50~55kg', '>55kg']
     weight_groups = pd.cut(pd.Series(weights), bins=bins, labels=labels, right=False)
-    weight_counts = weight_groups.value_counts().reindex(labels, fill_value=0)  # 缺失组补0
+    weight_counts = weight_groups.value_counts().reindex(labels, fill_value=0)
 
-    plt.figure(figsize=(8, 8))
+    plt.figure(figsize=(10, 10))  
     explode = (0.1, 0.1, 0, 0)
+
     plt.pie(
         weight_counts,
         explode=explode,
         labels=labels,
         autopct='%1.1f%%',
+        pctdistance=0.75, 
+        labeldistance=1.1, 
         shadow=True,
-        startangle=90
+        startangle=90,
+        textprops={'fontsize': 12},  
+        wedgeprops={'linewidth': 1.5, 'edgecolor': 'white'}  
     )
+    
     plt.axis('equal')
-    plt.title('《乘风破浪的姐姐》参赛嘉宾体重分布', fontsize=16)
-    plt.tight_layout()
+    plt.title('《乘风破浪的姐姐》参赛嘉宾体重分布', fontsize=16, pad=20) 
+    plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)
     plt.savefig(f'{save_dir}/pie_weight.jpg', dpi=300)
     plt.show()
 
@@ -123,18 +138,24 @@ else:
     height_groups = pd.cut(pd.Series(heights), bins=bins, labels=labels, right=False)
     height_counts = height_groups.value_counts().reindex(labels, fill_value=0)
 
-    plt.figure(figsize=(8, 8))
+    plt.figure(figsize=(10, 10))  # 增大饼图尺寸
     explode = (0.1, 0.1, 0)
+    
     plt.pie(
         height_counts,
         explode=explode,
         labels=labels,
         autopct='%1.1f%%',
+        pctdistance=0.75, 
+        labeldistance=1.1, 
         shadow=True,
-        startangle=90
+        startangle=90,
+        textprops={'fontsize': 12},  
+        wedgeprops={'linewidth': 1.5, 'edgecolor': 'white'} 
     )
+    
     plt.axis('equal')
-    plt.title('《乘风破浪的姐姐》参赛嘉宾身高分布', fontsize=16)
-    plt.tight_layout()
+    plt.title('《乘风破浪的姐姐》参赛嘉宾身高分布', fontsize=16, pad=20)  
+    plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)
     plt.savefig(f'{save_dir}/pie_height.jpg', dpi=300)
     plt.show()

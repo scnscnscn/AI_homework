@@ -1,15 +1,31 @@
 [
   {
     "name": "阿朵",
-    "link": "https://baike.baidu.com/item/%E9%98%BF%E6%9C%B5/435383"
+    "link": "https://baike.baidu.com/item/%E9%98%BF%E6%9C%B5/435383",
+    "nation": "土家族",
+    "birth_year": "1980",
+    "constellation": "白羊座",
+    "blood_type": "O型",
+    "height": "166"
   },
   {
     "name": "白冰",
-    "link": "https://baike.baidu.com/item/%E7%99%BD%E5%86%B0/10967"
+    "link": "https://baike.baidu.com/item/%E7%99%BD%E5%86%B0/10967",
+    "nation": "汉族",
+    "birth_year": "1986",
+    "constellation": "金牛座",
+    "blood_type": "AB型",
+    "height": "165",
+    "weight": "44"
   },
   {
     "name": "陈松伶",
-    "link": "https://baike.baidu.com/item/%E9%99%88%E6%9D%BE%E4%BC%B6/515736"
+    "link": "https://baike.baidu.com/item/%E9%99%88%E6%9D%BE%E4%BC%B6/515736",
+    "birth_year": "1971",
+    "constellation": "水瓶座",
+    "blood_type": "O型",
+    "height": "169",
+    "weight": "52"
   },
   {
     "name": "丁当",
@@ -35,23 +51,11 @@
   },
   {
     "name": "海陆",
-    "link": "https://baike.baidu.com/item/%E6%B5%B7%E9%99%86/21853",
-    "nation": "汉族",
-    "birth_year": "1984",
-    "constellation": "天秤座",
-    "blood_type": "O型",
-    "height": "169",
-    "weight": "48"
+    "link": "https://baike.baidu.com/item/%E6%B5%B7%E9%99%86/21853"
   },
   {
     "name": "金晨",
-    "link": "https://baike.baidu.com/item/%E9%87%91%E6%99%A8/26787",
-    "nation": "回族",
-    "birth_year": "1990",
-    "constellation": "处女座",
-    "blood_type": "B型",
-    "height": "171",
-    "weight": "43"
+    "link": "https://baike.baidu.com/item/%E9%87%91%E6%99%A8/26787"
   },
   {
     "name": "金莎",
@@ -65,13 +69,7 @@
   },
   {
     "name": "蓝盈莹",
-    "link": "https://baike.baidu.com/item/%E8%93%9D%E7%9B%88%E8%8E%B9/3560610",
-    "nation": "畲族",
-    "birth_year": "1990",
-    "constellation": "白羊座",
-    "blood_type": "O型",
-    "height": "169",
-    "weight": "49"
+    "link": "https://baike.baidu.com/item/%E8%93%9D%E7%9B%88%E8%8E%B9/3560610"
   },
   {
     "name": "李斯丹妮",
@@ -83,13 +81,7 @@
   },
   {
     "name": "刘芸",
-    "link": "https://baike.baidu.com/item/%E5%88%98%E8%8A%B8/21747",
-    "nation": "汉族",
-    "birth_year": "1982",
-    "constellation": "摩羯座",
-    "blood_type": "B型",
-    "height": "165",
-    "weight": "49"
+    "link": "https://baike.baidu.com/item/%E5%88%98%E8%8A%B8/21747"
   },
   {
     "name": "孟佳",
@@ -121,40 +113,19 @@
   },
   {
     "name": "吴昕",
-    "link": "https://baike.baidu.com/item/%E5%90%B4%E6%98%95/6540103",
-    "birth_year": "1983",
-    "constellation": "水瓶座",
-    "height": "162",
-    "weight": "46"
+    "link": "https://baike.baidu.com/item/%E5%90%B4%E6%98%95/6540103"
   },
   {
     "name": "王丽坤",
-    "link": "https://baike.baidu.com/item/%E7%8E%8B%E4%B8%BD%E5%9D%A4/10387585",
-    "nation": "满族",
-    "birth_year": "1985",
-    "constellation": "白羊座",
-    "blood_type": "AB型",
-    "height": "167",
-    "weight": "46"
+    "link": "https://baike.baidu.com/item/%E7%8E%8B%E4%B8%BD%E5%9D%A4/10387585"
   },
   {
     "name": "王霏霏",
-    "link": "https://baike.baidu.com/item/%E7%8E%8B%E9%9C%8F%E9%9C%8F/6382025",
-    "nation": "汉族",
-    "birth_year": "1987",
-    "constellation": "金牛座",
-    "height": "165",
-    "weight": "47"
+    "link": "https://baike.baidu.com/item/%E7%8E%8B%E9%9C%8F%E9%9C%8F/6382025"
   },
   {
     "name": "王智",
-    "link": "https://baike.baidu.com/item/%E7%8E%8B%E6%99%BA/10229857",
-    "nation": "汉族",
-    "birth_year": "1982",
-    "constellation": "狮子座",
-    "blood_type": "O型",
-    "height": "166",
-    "weight": "48"
+    "link": "https://baike.baidu.com/item/%E7%8E%8B%E6%99%BA/10229857"
   },
   {
     "name": "万茜",
@@ -168,12 +139,7 @@
   },
   {
     "name": "许飞",
-    "link": "https://baike.baidu.com/item/%E8%AE%B8%E9%A3%9E/48691",
-    "nation": "汉族",
-    "birth_year": "1985",
-    "constellation": "天蝎座",
-    "blood_type": "O型",
-    "height": "165"
+    "link": "https://baike.baidu.com/item/%E8%AE%B8%E9%A3%9E/48691"
   },
   {
     "name": "郁可唯",
@@ -207,21 +173,11 @@
   },
   {
     "name": "张雨绮",
-    "link": "https://baike.baidu.com/item/%E5%BC%A0%E9%9B%A8%E7%BB%AE/8785636",
-    "nation": "汉族",
-    "birth_year": "1987",
-    "constellation": "狮子座",
-    "blood_type": "A型",
-    "height": "166"
+    "link": "https://baike.baidu.com/item/%E5%BC%A0%E9%9B%A8%E7%BB%AE/8785636"
   },
   {
     "name": "张含韵",
-    "link": "https://baike.baidu.com/item/%E5%BC%A0%E5%90%AB%E9%9F%B5/147407",
-    "nation": "汉族",
-    "birth_year": "1989",
-    "constellation": "白羊座",
-    "height": "164",
-    "weight": "50"
+    "link": "https://baike.baidu.com/item/%E5%BC%A0%E5%90%AB%E9%9F%B5/147407"
   },
   {
     "name": "张萌",
@@ -244,12 +200,7 @@
   },
   {
     "name": "郑希怡",
-    "link": "https://baike.baidu.com/item/%E9%83%91%E5%B8%8C%E6%80%A1/805307",
-    "birth_year": "1981",
-    "constellation": "处女座",
-    "blood_type": "A型",
-    "height": "171",
-    "weight": "54"
+    "link": "https://baike.baidu.com/item/%E9%83%91%E5%B8%8C%E6%80%A1/805307"
   },
   {
     "name": "朱婧汐",
